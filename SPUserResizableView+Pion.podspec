@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
 
 # Source Info
   s.platform     =  :ios, '5.0'
-  s.source       =  {:git => 'https://github.com/keleixu/SPUserResizableView.git', :tag => '0.5.3'}
+  s.source       =  {:git => 'https://github.com/keleixu/SPUserResizableView.git', :tag => '0.6.0'}
   s.source_files = 'SPUserResizableView/SPUserResizableView.{h,m}'
   s.requires_arc = true
   
