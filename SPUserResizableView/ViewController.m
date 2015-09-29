@@ -7,23 +7,36 @@
 
 #import "ViewController.h"
 
+@interface ViewController()
+
+@property (nonatomic, strong) SPUserResizableView *imageResizableView;
+@property (nonatomic, strong) CAShapeLayer *fillLayer;
+
+@end
+
 @implementation ViewController
 
 - (void)viewDidLoad {
     CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
     self.view = [[UIView alloc] initWithFrame:appFrame];
-    self.view.backgroundColor = [UIColor blackColor];
+    self.view.backgroundColor = [UIColor whiteColor];
     
     CGRect frame = CGRectMake(100, 100, 200, 200);
-    SPUserResizableView *imageResizableView = [[SPUserResizableView alloc] initWithFrame:frame];
+    self.imageResizableView = [[SPUserResizableView alloc] initWithFrame:frame];
     
-    imageResizableView.contentView = [[UIView alloc] initWithFrame:frame];
-    imageResizableView.contentView.backgroundColor = [UIColor redColor];
-    imageResizableView.delegate = self;
-    imageResizableView.disablePan = NO;
-    [imageResizableView showEditingHandles];
+    self.imageResizableView.contentView = [[UIView alloc] initWithFrame:frame];
+    self.imageResizableView.contentView.backgroundColor = [UIColor redColor];
+    self.imageResizableView.delegate = self;
+    self.imageResizableView.disablePan = NO;
+    [self.imageResizableView showEditingHandles];
     
-    [self.view addSubview:imageResizableView];
+    self.fillLayer = [CAShapeLayer layer];
+    self.fillLayer.path = self.fillLayer.path = [self getOverlayPath:appFrame transparentBounds:frame].CGPath;
+    self.fillLayer.fillRule = kCAFillRuleEvenOdd;
+    self.fillLayer.fillColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.3].CGColor;
+    [self.view.layer addSublayer:self.fillLayer];
+    
+    [self.view addSubview:self.imageResizableView];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -34,8 +47,25 @@
     }
     return YES;
 }
+
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
     return YES;
+}
+
+- (void)userResizableViewNewRealFrame:(SPUserResizableView *)userResizableView
+{
+    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
+    self.fillLayer.path = [self getOverlayPath:appFrame transparentBounds:self.imageResizableView.frame].CGPath;
+    [self.fillLayer didChangeValueForKey:@"path"];
+}
+
+- (UIBezierPath *)getOverlayPath:(CGRect)overlayBounds transparentBounds:(CGRect)transparentBounds
+{
+    UIBezierPath *overlayPath = [UIBezierPath bezierPathWithRect:overlayBounds];
+    UIBezierPath *transparentPath = [UIBezierPath bezierPathWithRect:transparentBounds];
+    [overlayPath appendPath:transparentPath];
+    [overlayPath setUsesEvenOddFillRule:YES];
+    return overlayPath;
 }
 
 - (void)handlePinchGesture:(UIPinchGestureRecognizer *)gestureRecognizer {

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		24464BAD1BBA4128006D0582 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 24464BAC1BBA4128006D0582 /* Images.xcassets */; settings = {ASSET_TAGS = (); }; };
+		24E4394A1BBA5B4B009EBDDA /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24E439491BBA5B4B009EBDDA /* QuartzCore.framework */; };
 		9C36DD3A1494491A00D3035F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C36DD391494491A00D3035F /* UIKit.framework */; };
 		9C36DD3C1494491A00D3035F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C36DD3B1494491A00D3035F /* Foundation.framework */; };
 		9C36DD3E1494491A00D3035F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C36DD3D1494491A00D3035F /* CoreGraphics.framework */; };
@@ -21,6 +22,7 @@
 
 /* Begin PBXFileReference section */
 		24464BAC1BBA4128006D0582 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		24E439491BBA5B4B009EBDDA /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		9C36DD351494491A00D3035F /* SPUserResizableView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SPUserResizableView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C36DD391494491A00D3035F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		9C36DD3B1494491A00D3035F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -43,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24E4394A1BBA5B4B009EBDDA /* QuartzCore.framework in Frameworks */,
 				9C36DD3A1494491A00D3035F /* UIKit.framework in Frameworks */,
 				9C36DD3C1494491A00D3035F /* Foundation.framework in Frameworks */,
 				9C36DD3E1494491A00D3035F /* CoreGraphics.framework in Frameworks */,
@@ -72,6 +75,7 @@
 		9C36DD381494491A00D3035F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				24E439491BBA5B4B009EBDDA /* QuartzCore.framework */,
 				9C36DD391494491A00D3035F /* UIKit.framework */,
 				9C36DD3B1494491A00D3035F /* Foundation.framework */,
 				9C36DD3D1494491A00D3035F /* CoreGraphics.framework */,

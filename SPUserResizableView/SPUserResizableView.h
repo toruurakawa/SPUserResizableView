@@ -16,7 +16,7 @@
 
 #define kSPUserResizableViewDefaultMinWidth 48.0
 #define kSPUserResizableViewDefaultMinHeight 48.0
-#define kSPUserResizableViewInteractiveBorderSize 20.0
+#define kSPUserResizableViewInteractiveBorderSize 0.0
 
 typedef struct SPUserResizableViewAnchorPoint {
     CGFloat adjustsX;

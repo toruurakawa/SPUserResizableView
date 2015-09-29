@@ -9,7 +9,7 @@
 #define RADIANS_TO_DEGREES(radians) ((radians) * (180.0 / M_PI))
 
 #define kCropperCornerSize 20.0
-#define kCropperCornerOffset 10.0
+#define kCropperCornerOffset 0
 
 static SPUserResizableViewAnchorPoint SPUserResizableViewNoResizeAnchorPoint = { 0.0, 0.0, 0.0, 0.0 };
 static SPUserResizableViewAnchorPoint SPUserResizableViewUpperLeftAnchorPoint = { 1.0, 1.0, -1.0, 1.0 };
@@ -409,6 +409,10 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
                                                  }*/
     }
     self.center = newCenter;
+    
+    if ([self delegate] && [[self delegate] respondsToSelector:@selector(userResizableViewNewRealFrame:)]) {
+        [[self delegate] userResizableViewNewRealFrame:self];
+    }
 }
 
 - (void)setAnchorPoint:(CGPoint)anchor {
