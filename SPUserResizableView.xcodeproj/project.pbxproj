@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		24464BAD1BBA4128006D0582 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 24464BAC1BBA4128006D0582 /* Images.xcassets */; settings = {ASSET_TAGS = (); }; };
 		9C36DD3A1494491A00D3035F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C36DD391494491A00D3035F /* UIKit.framework */; };
 		9C36DD3C1494491A00D3035F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C36DD3B1494491A00D3035F /* Foundation.framework */; };
 		9C36DD3E1494491A00D3035F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C36DD3D1494491A00D3035F /* CoreGraphics.framework */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		24464BAC1BBA4128006D0582 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		9C36DD351494491A00D3035F /* SPUserResizableView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SPUserResizableView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C36DD391494491A00D3035F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		9C36DD3B1494491A00D3035F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -86,6 +88,7 @@
 				9C36DD5314944A8F00D3035F /* ViewController.m */,
 				9C36DD481494491B00D3035F /* AppDelegate.h */,
 				9C36DD491494491B00D3035F /* AppDelegate.m */,
+				24464BAC1BBA4128006D0582 /* Images.xcassets */,
 				9C36DD401494491A00D3035F /* Supporting Files */,
 			);
 			path = SPUserResizableView;
@@ -154,6 +157,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24464BAD1BBA4128006D0582 /* Images.xcassets in Resources */,
 				9C36DD441494491A00D3035F /* InfoPlist.strings in Resources */,
 				9C36DD5714944F1600D3035F /* milky_way.jpg in Resources */,
 			);
@@ -233,6 +237,8 @@
 		9C36DD4E1494491B00D3035F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = BrandAsset;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SPUserResizableView/SPUserResizableView-Prefix.pch";
 				INFOPLIST_FILE = "SPUserResizableView/SPUserResizableView-Info.plist";
@@ -245,6 +251,8 @@
 		9C36DD4F1494491B00D3035F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = BrandAsset;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SPUserResizableView/SPUserResizableView-Prefix.pch";
 				INFOPLIST_FILE = "SPUserResizableView/SPUserResizableView-Info.plist";
