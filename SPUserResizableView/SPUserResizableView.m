@@ -35,6 +35,7 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
         // Clear background to ensure the content view shows through.
         self.backgroundColor = [UIColor clearColor];
     }
+    
     return self;
 }
 
@@ -128,6 +129,8 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
  */
 - (void)touchesFinished:(NSSet *)touches;
 
+@property (nonatomic, strong) UIPinchGestureRecognizer *pinchRecognizer;
+
 @end
 
 @implementation SPUserResizableView
@@ -152,6 +155,10 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
     
     [self setResizableInset:kSPUserResizableViewGlobalInset];
     [self setInteractiveBorderSize:kSPUserResizableViewInteractiveBorderSize];
+    
+    self.pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(scaleView:)];
+    self.pinchRecognizer.cancelsTouchesInView = YES;
+    [self addGestureRecognizer:self.pinchRecognizer];
     
 }
 
@@ -449,9 +456,9 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
     CGPointSPUserResizableViewAnchorPointPair centerPoint = { CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2), SPUserResizableViewNoResizeAnchorPoint };
     
     // (2) Iterate over each of the anchor points and find the one closest to the user's touch.
-    CGPointSPUserResizableViewAnchorPointPair allPoints[9] = { upperLeft, upperRight, lowerRight, lowerLeft, centerPoint };
+    CGPointSPUserResizableViewAnchorPointPair allPoints[5] = { upperLeft, upperRight, lowerRight, lowerLeft, centerPoint };
     CGFloat smallestDistance = MAXFLOAT; CGPointSPUserResizableViewAnchorPointPair closestPoint = centerPoint;
-    for (NSInteger i = 0; i < 9; i++) {
+    for (NSInteger i = 0; i < 5; i++) {
         CGFloat distance = SPDistanceBetweenTwoPoints(touchPoint, allPoints[i].point);
         if (distance < smallestDistance) {
             closestPoint = allPoints[i];
@@ -461,7 +468,7 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
     
     
     // make dragable only small portion of border.
-    float check     = ([self resizableInset]+5) * 2;
+    float check     = ([self resizableInset]+20) * 2;
     
     if (touchPoint.x < check+[self resizableInset] || touchPoint.x >= (self.bounds.size.width-check) || touchPoint.y < check+[self resizableInset] || touchPoint.y >= (self.bounds.size.height-check)) {
         return closestPoint.anchorPoint;
@@ -531,6 +538,39 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
             didMakeChange    = YES;
             
             [self translateUsingTouchLocation:[[touches anyObject] locationInView:self]];
+        }
+    }
+}
+
+- (void)scaleView:(UIPinchGestureRecognizer *)gestureRecognizer
+{
+    UIView *view = (UIView *) [gestureRecognizer view];
+    
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(userResizableViewDidBeginEditing:)]) {
+            [self.delegate userResizableViewDidBeginEditing:self];
+        }
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(userResizableViewDidEndEditing:)]) {
+            [self.delegate userResizableViewDidEndEditing:self];
+        }
+    }
+    
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan || gestureRecognizer.state == UIGestureRecognizerStateChanged){
+        CGFloat scale = gestureRecognizer.scale;
+        CGRect frame = view.frame;
+        CGPoint currentCenter = view.center;
+        CGFloat newWidth = frame.size.width * scale;
+        CGFloat newHeight = frame.size.height * scale;
+        frame.size.width = newWidth;
+        frame.size.height = newHeight;
+        
+        view.frame = frame;
+        view.center = currentCenter;
+        gestureRecognizer.scale = 1;
+        
+        if ([self delegate] && [[self delegate] respondsToSelector:@selector(userResizableViewNewRealFrame:)]) {
+            [[self delegate] userResizableViewNewRealFrame:self];
         }
     }
 }

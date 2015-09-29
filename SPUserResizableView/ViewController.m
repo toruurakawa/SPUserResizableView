@@ -14,7 +14,7 @@
     self.view = [[UIView alloc] initWithFrame:appFrame];
     self.view.backgroundColor = [UIColor blackColor];
     
-    CGRect frame = CGRectMake(200, 200, 200, 200);
+    CGRect frame = CGRectMake(100, 100, 200, 200);
     SPUserResizableView *imageResizableView = [[SPUserResizableView alloc] initWithFrame:frame];
     
     imageResizableView.contentView = [[UIView alloc] initWithFrame:frame];
@@ -24,19 +24,6 @@
     [imageResizableView showEditingHandles];
     
     [self.view addSubview:imageResizableView];
-    
-    UIPinchGestureRecognizer *pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchGesture:)];
-    [pinchRecognizer setDelegate:self];
-    [imageResizableView addGestureRecognizer:pinchRecognizer];
-}
-
-- (void)userResizableViewDidBeginEditing:(SPUserResizableView *)userResizableView {
-    [currentlyEditingView hideEditingHandles];
-    currentlyEditingView = userResizableView;
-}
-
-- (void)userResizableViewDidEndEditing:(SPUserResizableView *)userResizableView {
-    lastEditedView = userResizableView;
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
