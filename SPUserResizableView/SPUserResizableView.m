@@ -245,18 +245,9 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
         return;
     }
     
-    NSLog(@"Touch point %@",NSStringFromCGPoint(touchPoint));
     // save current rotation and scales
     CGFloat scaleX      = [[self valueForKeyPath:@"layer.transform.scale.x"] floatValue];
     CGFloat scaleY      = [[self valueForKeyPath:@"layer.transform.scale.y"] floatValue];
-    CGFloat rotation    = [[self valueForKeyPath:@"layer.transform.rotation"] floatValue];
-    
-    // update current anchor point to update frane with transform
-    
-    //NSLog(@"H %f, W %f, X %f, Y %f", anchorPoint.adjustsH, anchorPoint.adjustsW, anchorPoint.adjustsX, anchorPoint.adjustsY);
-    
-    
-    NSLog(@"Rotation %f",RADIANS_TO_DEGREES(rotation));
     
     
     CGPoint point;
@@ -301,28 +292,6 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
     
     CGPoint start   = touchStart;
     CGPoint end     = touchPoint;
-    
-    float rotationDeg   = RADIANS_TO_DEGREES(rotation);
-    
-    if (rotationDeg > 45.0 && rotationDeg < 135.0) {
-        
-        start.x     = touchStart.y;
-        start.y     = touchPoint.x;
-        
-        end.x     = touchPoint.y;
-        end.y     = touchStart.x;
-    } else if (-45.0 > rotationDeg && rotationDeg > -135.0) {
-        start.x     = touchPoint.y;
-        start.y     = touchStart.x;
-        
-        end.x     = touchStart.y;
-        end.y     = touchPoint.x;
-        //} else if (-135.0 > rotationDeg) {
-        
-    } else if (rotationDeg > 135.0 || -135.0 > rotationDeg) {
-        start   = touchPoint;
-        end     = touchStart;
-    }
     
     
     
@@ -376,10 +345,6 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
     if ([self delegate] && [[self delegate] respondsToSelector:@selector(userResizableViewNewRealFrame:)]) {
         [[self delegate] userResizableViewNewRealFrame:self];
     }
-    // resotre the transform
-    CGAffineTransform transform     = CGAffineTransformMakeRotation(rotation);
-    
-    [self setTransform:CGAffineTransformScale(transform, scaleX, scaleY)];
     
     
     touchStart = touchPoint;
