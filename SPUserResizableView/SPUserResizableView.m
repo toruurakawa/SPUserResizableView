@@ -265,7 +265,7 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
     }
     
     
-    [self setAnchorPoint:point];
+    //[self setAnchorPoint:point];
     
     // restore to normal cords
     [self setTransform:CGAffineTransformIdentity];
