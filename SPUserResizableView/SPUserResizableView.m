@@ -157,7 +157,6 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
     [self setInteractiveBorderSize:kSPUserResizableViewInteractiveBorderSize];
     
     self.pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(scaleView:)];
-    self.pinchRecognizer.cancelsTouchesInView = YES;
     [self addGestureRecognizer:self.pinchRecognizer];
     
 }
