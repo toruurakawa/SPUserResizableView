@@ -92,7 +92,6 @@
 				9C36DD5314944A8F00D3035F /* ViewController.m */,
 				9C36DD481494491B00D3035F /* AppDelegate.h */,
 				9C36DD491494491B00D3035F /* AppDelegate.m */,
-				24464BAC1BBA4128006D0582 /* Images.xcassets */,
 				9C36DD401494491A00D3035F /* Supporting Files */,
 			);
 			path = SPUserResizableView;
@@ -101,6 +100,7 @@
 		9C36DD401494491A00D3035F /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				24464BAC1BBA4128006D0582 /* Images.xcassets */,
 				9C36DD5614944F1600D3035F /* milky_way.jpg */,
 				9C36DD411494491A00D3035F /* SPUserResizableView-Info.plist */,
 				9C36DD421494491A00D3035F /* InfoPlist.strings */,
