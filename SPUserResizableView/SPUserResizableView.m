@@ -562,14 +562,14 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan || gestureRecognizer.state == UIGestureRecognizerStateChanged){
         CGFloat scale = gestureRecognizer.scale;
         CGRect frame = view.frame;
-        CGPoint currentCenter = view.center;
         CGFloat newWidth = frame.size.width * scale;
         CGFloat newHeight = frame.size.height * scale;
         frame.size.width = newWidth;
         frame.size.height = newHeight;
+        frame.origin.x -= (newWidth - view.frame.size.width) / 2;
+        frame.origin.y -= (newHeight - view.frame.size.height) / 2;
         
         view.frame = frame;
-        view.center = currentCenter;
         gestureRecognizer.scale = 1;
         
         if ([self delegate] && [[self delegate] respondsToSelector:@selector(userResizableViewNewRealFrame:)]) {
