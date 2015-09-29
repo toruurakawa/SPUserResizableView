@@ -130,6 +130,7 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
 - (void)touchesFinished:(NSSet *)touches;
 
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchRecognizer;
+@property (nonatomic, strong) UIPanGestureRecognizer *panRecognizer;
 
 @end
 
@@ -158,6 +159,8 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
     
     self.pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(scaleView:)];
     [self addGestureRecognizer:self.pinchRecognizer];
+    self.panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(translateView:)];
+    [self addGestureRecognizer:self.panRecognizer];
     
 }
 
@@ -480,59 +483,22 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
     }
 }
 
-#pragma mark - Touches
-
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    if ([self isDisabledForTouches:touches]) {
-        return;
-    }
-    
-    //m_originalAnchorPoint    = [[self layer] anchorPoint];
-    
-    // Notify the delegate we've begun our editing session.
-    if (self.delegate && [self.delegate respondsToSelector:@selector(userResizableViewDidBeginEditing:)]) {
-        [self.delegate userResizableViewDidBeginEditing:self];
-    }
-    
-    [borderView setHidden:NO];
-    UITouch *touch = [touches anyObject];
-    
-    anchorPoint = [self anchorPointForTouchLocation:[touch locationInView:self]];
-    
-    // When resizing, all calculations are done in the superview's coordinate space.
-    touchStart = [touch locationInView:self.superview];
-    if (![self isResizing]) {
-        // When translating, all calculations are done in the view's coordinate space.
-        touchStart = [touch locationInView:self];
-    }
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    [self touchesFinished:touches];
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
-    [self touchesFinished:touches];
-}
-
-- (void)touchesFinished:(NSSet *)touches {
-    if ((didMakeChange || ![self disable]) && self.delegate && [self.delegate respondsToSelector:@selector(userResizableViewDidEndEditing:)]) {
-        [self.delegate userResizableViewDidEndEditing:self];
-    }
-    
-    didMakeChange   = NO;
-    
-    if ([self isDisabledForTouches:touches]) {
-        return;
-    }
-}
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    // is disabled or there are more touches
-    if (![self isDisabledForTouches:touches]) {
-        CGPoint point    = [[touches anyObject] locationInView:self.superview];
+- (void)translateView:(UIPanGestureRecognizer *)gestureRecognizer
+{
+    CGFloat currentTouchIndex = [gestureRecognizer numberOfTouches] - 1;
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        anchorPoint = [self anchorPointForTouchLocation:[gestureRecognizer locationOfTouch:currentTouchIndex inView:self]];
         
-        if ([self isResizing] && [touches count] == 1) {
+        // When resizing, all calculations are done in the superview's coordinate space.
+        touchStart = [gestureRecognizer locationOfTouch:currentTouchIndex inView:self.superview];
+        if (![self isResizing]) {
+            // When translating, all calculations are done in the view's coordinate space.
+            touchStart = [gestureRecognizer locationOfTouch:currentTouchIndex inView:self];
+        }
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged) {
+        CGPoint point = [gestureRecognizer locationOfTouch:currentTouchIndex inView:self.superview];
+        
+        if ([self isResizing]) {
             if ([self willResize:point]) {
                 didMakeChange    = YES;
                 [self resizeUsingTouchLocation:point];
@@ -540,8 +506,14 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
         } else if (![self disablePan]){
             didMakeChange    = YES;
             
-            [self translateUsingTouchLocation:[[touches anyObject] locationInView:self]];
+            [self translateUsingTouchLocation:[gestureRecognizer locationOfTouch:currentTouchIndex inView:self]];
         }
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+        if ((didMakeChange || ![self disable]) && self.delegate && [self.delegate respondsToSelector:@selector(userResizableViewDidEndEditing:)]) {
+            [self.delegate userResizableViewDidEndEditing:self];
+        }
+        
+        didMakeChange   = NO;
     }
 }
 
@@ -578,7 +550,7 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
     }
 }
 
-- (void)dealloc {    
+- (void)dealloc {
     [contentView removeFromSuperview];
 }
 
