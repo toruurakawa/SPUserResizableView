@@ -9,7 +9,7 @@
 #define RADIANS_TO_DEGREES(radians) ((radians) * (180.0 / M_PI))
 
 #define kCropperCornerSize 20.0
-#define kCropperCornerOffset 15.0
+#define kCropperCornerOffset 10.0
 
 static SPUserResizableViewAnchorPoint SPUserResizableViewNoResizeAnchorPoint = { 0.0, 0.0, 0.0, 0.0 };
 static SPUserResizableViewAnchorPoint SPUserResizableViewUpperLeftAnchorPoint = { 1.0, 1.0, -1.0, 1.0 };
@@ -42,17 +42,11 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextSaveGState(context);
     
-    // (1) Draw the bounding box.
-    CGContextSetLineWidth(context, 1.0);
-    CGContextSetStrokeColorWithColor(context, [UIColor blueColor].CGColor);
-    CGContextAddRect(context, CGRectInset(self.bounds, [self interactiveBorderSize]/2, [self interactiveBorderSize]/2));
-    CGContextStrokePath(context);
-    
     // (2) Calculate the bounding boxes for each of the anchor points.
-    CGRect upperLeft = CGRectMake(0.0, 0.0, [self interactiveBorderSize], [self interactiveBorderSize]);
-    CGRect upperRight = CGRectMake(self.bounds.size.width - [self interactiveBorderSize], 0.0, [self interactiveBorderSize], [self interactiveBorderSize]);
-    CGRect lowerRight = CGRectMake(self.bounds.size.width - [self interactiveBorderSize], self.bounds.size.height - [self interactiveBorderSize], [self interactiveBorderSize], [self interactiveBorderSize]);
-    CGRect lowerLeft = CGRectMake(0.0, self.bounds.size.height - [self interactiveBorderSize], [self interactiveBorderSize], [self interactiveBorderSize]);
+    CGRect upperLeft = CGRectMake(kCropperCornerOffset, kCropperCornerOffset, kCropperCornerSize, kCropperCornerSize);
+    CGRect upperRight = CGRectMake(self.bounds.size.width - kCropperCornerSize - kCropperCornerOffset, kCropperCornerOffset, kCropperCornerSize, kCropperCornerSize);
+    CGRect lowerRight = CGRectMake(self.bounds.size.width - kCropperCornerSize - kCropperCornerOffset, self.bounds.size.height - kCropperCornerSize - kCropperCornerOffset, kCropperCornerSize, kCropperCornerSize);
+    CGRect lowerLeft = CGRectMake(kCropperCornerOffset, self.bounds.size.height - kCropperCornerSize - kCropperCornerOffset, kCropperCornerSize, kCropperCornerSize);
     
     // (3) Create the gradient to paint the anchor points.
     CGFloat colors [] = {
@@ -542,6 +536,8 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
 }
 
 - (void)dealloc {
+    [super dealloc];
+    
     [contentView removeFromSuperview];
 }
 

@@ -24,6 +24,5 @@
 }
 
 - (void)handlePinchGesture:(UIPinchGestureRecognizer *)gestureRecognizer;
-- (void)handleRotateGesture:(UIRotationGestureRecognizer*)sender;
 
 @end

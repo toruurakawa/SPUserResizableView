@@ -12,11 +12,11 @@
 /* Let's inset everything that's drawn (the handles and the content view)
  so that users can trigger a resize from a few pixels outside of
  what they actually see as the bounding box. */
-#define kSPUserResizableViewGlobalInset 5.0
+#define kSPUserResizableViewGlobalInset 20.0
 
 #define kSPUserResizableViewDefaultMinWidth 48.0
 #define kSPUserResizableViewDefaultMinHeight 48.0
-#define kSPUserResizableViewInteractiveBorderSize 10.0
+#define kSPUserResizableViewInteractiveBorderSize 20.0
 
 typedef struct SPUserResizableViewAnchorPoint {
     CGFloat adjustsX;
