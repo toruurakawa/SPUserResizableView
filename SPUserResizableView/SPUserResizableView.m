@@ -10,6 +10,7 @@
 
 #define kCropperCornerSize 20.0
 #define kCropperCornerOffset 0
+#define kPinchResizeFactor 0.01
 
 static SPUserResizableViewAnchorPoint SPUserResizableViewNoResizeAnchorPoint = { 0.0, 0.0, 0.0, 0.0 };
 static SPUserResizableViewAnchorPoint SPUserResizableViewUpperLeftAnchorPoint = { 1.0, 1.0, -1.0, 1.0 };
@@ -159,8 +160,10 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
     
     self.pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(scaleView:)];
     [self addGestureRecognizer:self.pinchRecognizer];
+    self.pinchRecognizer.delegate = self;
     self.panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(translateView:)];
     [self addGestureRecognizer:self.panRecognizer];
+    self.panRecognizer.delegate = self;
     
 }
 
@@ -273,7 +276,7 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
     // (1) Update the touch point if we're outside the superview.
     
     if (self.preventsPositionOutsideSuperview) {
-        CGFloat border = [self resizableInset] + [self interactiveBorderSize]/2;
+        CGFloat border = [self resizableInset] + [self interactiveBorderSize] / 2;
         if (touchPoint.x < border) {
             touchPoint.x = border;
         }
@@ -357,23 +360,23 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
     
     CGPoint newCenter = CGPointMake(self.center.x + touchPoint.x - touchStart.x, self.center.y + touchPoint.y - touchStart.y);
     
-    if (self.preventsPositionOutsideSuperview) {/*
-                                                 // Ensure the translation won't cause the view to move offscreen.
-                                                 
-                                                 CGFloat midPointX = CGRectGetMidX(self.bounds);
-                                                 if (newCenter.x > self.superview.bounds.size.width - midPointX) {
-                                                 newCenter.x = self.superview.bounds.size.width - midPointX;
-                                                 }
-                                                 if (newCenter.x < midPointX) {
-                                                 newCenter.x = midPointX;
-                                                 }
-                                                 CGFloat midPointY = CGRectGetMidY(self.bounds);
-                                                 if (newCenter.y > self.superview.bounds.size.height - midPointY) {
-                                                 newCenter.y = self.superview.bounds.size.height - midPointY;
-                                                 }
-                                                 if (newCenter.y < midPointY) {
-                                                 newCenter.y = midPointY;
-                                                 }*/
+    if (self.preventsPositionOutsideSuperview) {
+        // Ensure the translation won't cause the view to move offscreen.
+        
+        CGFloat midPointX = CGRectGetMidX(self.bounds);
+        if (newCenter.x > self.superview.bounds.size.width - midPointX) {
+            newCenter.x = self.superview.bounds.size.width - midPointX;
+        }
+        if (newCenter.x < midPointX) {
+            newCenter.x = midPointX;
+        }
+        CGFloat midPointY = CGRectGetMidY(self.bounds);
+        if (newCenter.y > self.superview.bounds.size.height - midPointY) {
+            newCenter.y = self.superview.bounds.size.height - midPointY;
+        }
+        if (newCenter.y < midPointY) {
+            newCenter.y = midPointY;
+        }
     }
     self.center = newCenter;
     
@@ -452,6 +455,10 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
 {
     CGFloat currentTouchIndex = [gestureRecognizer numberOfTouches] - 1;
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(userResizableViewDidBeginEditing:)]) {
+            [self.delegate userResizableViewDidBeginEditing:self];
+        }
+        
         anchorPoint = [self anchorPointForTouchLocation:[gestureRecognizer locationOfTouch:currentTouchIndex inView:self]];
         
         // When resizing, all calculations are done in the superview's coordinate space.
@@ -471,7 +478,10 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
         } else if (![self disablePan]){
             didMakeChange    = YES;
             
-            [self translateUsingTouchLocation:[gestureRecognizer locationOfTouch:currentTouchIndex inView:self]];
+            touchStart = CGPointZero;
+            CGPoint translation = [gestureRecognizer translationInView:gestureRecognizer.view];
+            [self translateUsingTouchLocation:translation];
+            [gestureRecognizer setTranslation:CGPointZero inView:gestureRecognizer.view];
         }
     } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         if ((didMakeChange || ![self disable]) && self.delegate && [self.delegate respondsToSelector:@selector(userResizableViewDidEndEditing:)]) {
@@ -486,6 +496,10 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
 {
     UIView *view = (UIView *) [gestureRecognizer view];
     
+    if (gestureRecognizer.numberOfTouches != 2) {
+        return;
+    }
+    
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
         if (self.delegate && [self.delegate respondsToSelector:@selector(userResizableViewDidBeginEditing:)]) {
             [self.delegate userResizableViewDidBeginEditing:self];
@@ -496,23 +510,43 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
         }
     }
     
-    if (gestureRecognizer.state == UIGestureRecognizerStateBegan || gestureRecognizer.state == UIGestureRecognizerStateChanged){
-        CGFloat scale = gestureRecognizer.scale;
+    CGPoint currentPinchPoint1 = [gestureRecognizer locationOfTouch:0 inView:gestureRecognizer.view];
+    CGPoint currentPinchPoint2 = [gestureRecognizer locationOfTouch:1 inView:gestureRecognizer.view];
+    CGPoint centerPoint = [gestureRecognizer locationInView:gestureRecognizer.view];
+    CGFloat currentSpanX = (fabs(currentPinchPoint1.x - centerPoint.x) + fabs(currentPinchPoint2.x - centerPoint.x)) / 2;
+    CGFloat currentSpanY = (fabs(currentPinchPoint1.y - centerPoint.y) + fabs(currentPinchPoint2.y - centerPoint.y)) / 2;
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        previousSpanX = currentSpanX;
+        previousSpanY = currentSpanY;
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged){
+        CGFloat deltaSpanX =  currentSpanX - previousSpanX;
+        CGFloat deltaSpanY =  currentSpanY - previousSpanY;
+        
         CGRect frame = view.frame;
-        CGFloat newWidth = frame.size.width * scale;
-        CGFloat newHeight = frame.size.height * scale;
+        CGFloat newWidth = frame.size.width + (deltaSpanX * kPinchResizeFactor * frame.size.width);
+        CGFloat newHeight = frame.size.height + (deltaSpanY * kPinchResizeFactor * frame.size.height);
+        CGPoint centerInSuperview = [gestureRecognizer locationInView:gestureRecognizer.view.superview];
         frame.size.width = newWidth;
         frame.size.height = newHeight;
-        frame.origin.x -= (newWidth - view.frame.size.width) / 2;
-        frame.origin.y -= (newHeight - view.frame.size.height) / 2;
+        frame.origin.x = centerInSuperview.x - newWidth / 2;
+        frame.origin.y = centerInSuperview.y - newHeight / 2;
+        frame.origin.x = MAX(0, frame.origin.x);
+        frame.origin.y = MAX(0, frame.origin.y);
+        frame.size.width = MIN(view.superview.frame.size.width - view.frame.origin.x, frame.size.width);
+        frame.size.height = MIN(view.superview.frame.size.height - view.frame.origin.y, frame.size.height);
         
         view.frame = frame;
-        gestureRecognizer.scale = 1;
+        previousSpanX = currentSpanX;
+        previousSpanY = currentSpanY;
         
         if ([self delegate] && [[self delegate] respondsToSelector:@selector(userResizableViewNewRealFrame:)]) {
             [[self delegate] userResizableViewNewRealFrame:self];
         }
     }
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+    return YES;
 }
 
 - (void)dealloc {
