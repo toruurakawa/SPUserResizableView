@@ -163,7 +163,6 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
     self.pinchRecognizer.delegate = self;
     self.panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(translateView:)];
     [self addGestureRecognizer:self.panRecognizer];
-    self.panRecognizer.maximumNumberOfTouches = 1;
     self.panRecognizer.delegate = self;
     
 }
@@ -460,24 +459,26 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
             [self.delegate userResizableViewDidBeginEditing:self];
         }
         
-        anchorPoint = [self anchorPointForTouchLocation:[gestureRecognizer locationOfTouch:currentTouchIndex inView:self]];
-        
-        // When resizing, all calculations are done in the superview's coordinate space.
-        touchStart = [gestureRecognizer locationOfTouch:currentTouchIndex inView:self.superview];
-        if (![self isResizing]) {
-            // When translating, all calculations are done in the view's coordinate space.
-            touchStart = [gestureRecognizer locationOfTouch:currentTouchIndex inView:self];
+        if (gestureRecognizer.numberOfTouches == 1) {
+            anchorPoint = [self anchorPointForTouchLocation:[gestureRecognizer locationOfTouch:currentTouchIndex inView:self]];
+            
+            // When resizing, all calculations are done in the superview's coordinate space.
+            touchStart = [gestureRecognizer locationOfTouch:currentTouchIndex inView:self.superview];
+            if (![self isResizing]) {
+                // When translating, all calculations are done in the view's coordinate space.
+                touchStart = [gestureRecognizer locationOfTouch:currentTouchIndex inView:self];
+            }
         }
     } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged) {
         CGPoint point = [gestureRecognizer locationOfTouch:currentTouchIndex inView:self.superview];
         
-        if ([self isResizing]) {
+        if ([self isResizing] && gestureRecognizer.numberOfTouches == 1 && self.pinchRecognizer.state != UIGestureRecognizerStateChanged && self.pinchRecognizer.state != UIGestureRecognizerStateBegan) {
             if ([self willResize:point]) {
                 didMakeChange    = YES;
                 [self resizeUsingTouchLocation:point];
             }
         } else if (![self disablePan]){
-            didMakeChange    = YES;
+            didMakeChange    = NO;
             
             touchStart = CGPointZero;
             CGPoint translation = [gestureRecognizer translationInView:gestureRecognizer.view];
@@ -495,11 +496,6 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
 
 - (void)scaleView:(UIPinchGestureRecognizer *)gestureRecognizer
 {
-    
-    if (gestureRecognizer.numberOfTouches < 2) {
-        return;
-    }
-    
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
         if (self.delegate && [self.delegate respondsToSelector:@selector(userResizableViewDidBeginEditing:)]) {
             [self.delegate userResizableViewDidBeginEditing:self];
@@ -508,6 +504,10 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
         if (self.delegate && [self.delegate respondsToSelector:@selector(userResizableViewDidEndEditing:)]) {
             [self.delegate userResizableViewDidEndEditing:self];
         }
+    }
+    
+    if (gestureRecognizer.numberOfTouches < 2) {
+        return;
     }
     
     UIView *view = (UIView *) [gestureRecognizer view];
@@ -529,8 +529,8 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
         CGPoint centerInSuperview = [gestureRecognizer locationInView:gestureRecognizer.view.superview];
         frame.size.width = newWidth;
         frame.size.height = newHeight;
-        frame.origin.x = centerInSuperview.x - newWidth / 2;
-        frame.origin.y = centerInSuperview.y - newHeight / 2;
+        frame.origin.x -= (newWidth - view.frame.size.width) / 2;
+        frame.origin.y -= (newHeight - view.frame.size.height) / 2;
         frame.origin.x = MAX(0, frame.origin.x);
         frame.origin.y = MAX(0, frame.origin.y);
         frame.size.width = MIN(view.superview.frame.size.width - view.frame.origin.x, frame.size.width);
