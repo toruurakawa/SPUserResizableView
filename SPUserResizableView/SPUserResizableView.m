@@ -163,6 +163,7 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
     self.pinchRecognizer.delegate = self;
     self.panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(translateView:)];
     [self addGestureRecognizer:self.panRecognizer];
+    self.panRecognizer.maximumNumberOfTouches = 1;
     self.panRecognizer.delegate = self;
     
 }
@@ -459,20 +460,18 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
             [self.delegate userResizableViewDidBeginEditing:self];
         }
         
-        if (gestureRecognizer.numberOfTouches == 1) {
-            anchorPoint = [self anchorPointForTouchLocation:[gestureRecognizer locationOfTouch:currentTouchIndex inView:self]];
-            
-            // When resizing, all calculations are done in the superview's coordinate space.
-            touchStart = [gestureRecognizer locationOfTouch:currentTouchIndex inView:self.superview];
-            if (![self isResizing]) {
-                // When translating, all calculations are done in the view's coordinate space.
-                touchStart = [gestureRecognizer locationOfTouch:currentTouchIndex inView:self];
-            }
+        anchorPoint = [self anchorPointForTouchLocation:[gestureRecognizer locationOfTouch:currentTouchIndex inView:self]];
+        
+        // When resizing, all calculations are done in the superview's coordinate space.
+        touchStart = [gestureRecognizer locationOfTouch:currentTouchIndex inView:self.superview];
+        if (![self isResizing]) {
+            // When translating, all calculations are done in the view's coordinate space.
+            touchStart = [gestureRecognizer locationOfTouch:currentTouchIndex inView:self];
         }
     } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged) {
         CGPoint point = [gestureRecognizer locationOfTouch:currentTouchIndex inView:self.superview];
         
-        if ([self isResizing] && gestureRecognizer.numberOfTouches == 1) {
+        if ([self isResizing]) {
             if ([self willResize:point]) {
                 didMakeChange    = YES;
                 [self resizeUsingTouchLocation:point];
@@ -496,9 +495,8 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
 
 - (void)scaleView:(UIPinchGestureRecognizer *)gestureRecognizer
 {
-    UIView *view = (UIView *) [gestureRecognizer view];
     
-    if (gestureRecognizer.numberOfTouches != 2) {
+    if (gestureRecognizer.numberOfTouches < 2) {
         return;
     }
     
@@ -512,6 +510,7 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
         }
     }
     
+    UIView *view = (UIView *) [gestureRecognizer view];
     CGPoint currentPinchPoint1 = [gestureRecognizer locationOfTouch:0 inView:gestureRecognizer.view];
     CGPoint currentPinchPoint2 = [gestureRecognizer locationOfTouch:1 inView:gestureRecognizer.view];
     CGPoint centerPoint = [gestureRecognizer locationInView:gestureRecognizer.view];
