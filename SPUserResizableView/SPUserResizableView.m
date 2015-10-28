@@ -11,6 +11,7 @@
 #define kCropperCornerSize 20.0
 #define kCropperCornerOffset 0
 #define kPinchResizeFactor 0.01
+#define kTouchErrorMargin 30
 
 static SPUserResizableViewAnchorPoint SPUserResizableViewNoResizeAnchorPoint = { 0.0, 0.0, 0.0, 0.0 };
 static SPUserResizableViewAnchorPoint SPUserResizableViewUpperLeftAnchorPoint = { 1.0, 1.0, -1.0, 1.0 };
@@ -548,6 +549,19 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
     return YES;
+}
+
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+    if (self.hidden || self.alpha < 0.01) {
+        return nil;
+    }
+    
+    CGRect largerFrame = CGRectMake(self.bounds.origin.x - kTouchErrorMargin,
+                                    self.bounds.origin.y - kTouchErrorMargin,
+                                    self.bounds.size.width + (kTouchErrorMargin * 2),
+                                    self.bounds.size.height + (kTouchErrorMargin * 2));
+    return (CGRectContainsPoint(largerFrame, point) == YES) ? self : nil;
 }
 
 - (void)dealloc {
