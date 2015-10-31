@@ -144,6 +144,4 @@ typedef struct SPUserResizableViewAnchorPoint {
  */
 - (void)userResizableViewNewRealFrame:(SPUserResizableView *)userResizableView;
 
-- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event;
-
 @end

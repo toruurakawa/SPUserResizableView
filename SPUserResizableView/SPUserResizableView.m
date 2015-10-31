@@ -551,17 +551,17 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
     return YES;
 }
 
-- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event
 {
     if (self.hidden || self.alpha < 0.01) {
-        return nil;
+        return NO;
     }
     
     CGRect largerFrame = CGRectMake(self.bounds.origin.x - kTouchErrorMargin,
                                     self.bounds.origin.y - kTouchErrorMargin,
                                     self.bounds.size.width + (kTouchErrorMargin * 2),
                                     self.bounds.size.height + (kTouchErrorMargin * 2));
-    return (CGRectContainsPoint(largerFrame, point) == YES) ? self : nil;
+    return CGRectContainsPoint(largerFrame, point);
 }
 
 - (void)dealloc {
