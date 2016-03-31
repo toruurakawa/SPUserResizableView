@@ -18,6 +18,7 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewUpperLeftAnchorPoint = 
 static SPUserResizableViewAnchorPoint SPUserResizableViewLowerLeftAnchorPoint = { 1.0, 0.0, 1.0, 1.0 };
 static SPUserResizableViewAnchorPoint SPUserResizableViewUpperRightAnchorPoint = { 0.0, 1.0, -1.0, -1.0 };
 static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint = { 0.0, 0.0, 1.0, -1.0 };
+static SPUserResizableViewAnchorPoint SPUserResizableViewCenterAnchorPoint = { 0.5, 0.5, 1.0, -1.0 };
 
 @interface SPGripViewBorderView : UIView
 
@@ -69,28 +70,28 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewLowerRightAnchorPoint =
     CGContextSetStrokeColorWithColor(context, [UIColor whiteColor].CGColor);
     
     /*if (!self.topLeftAnchor) {
-        self.topLeftAnchor = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cropper-top-left"]];
-        [self addSubview:self.topLeftAnchor];
-    }
-    self.topLeftAnchor.frame = upperLeft;
-    
-    if (!self.topRightAnchor) {
-        self.topRightAnchor = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cropper-top-right"]];
-        [self addSubview:self.topRightAnchor];
-    }
-    self.topRightAnchor.frame = upperRight;
-    
-    if (!self.bottomLeftAnchor) {
-        self.bottomLeftAnchor = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cropper-bottom-left"]];
-        [self addSubview:self.bottomLeftAnchor];
-    }
-    self.bottomLeftAnchor.frame = lowerLeft;
-    
-    if (!self.bottomRightAnchor) {
-        self.bottomRightAnchor = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cropper-bottom-right"]];
-        [self addSubview:self.bottomRightAnchor];
-    }
-    self.bottomRightAnchor.frame = lowerRight;*/
+     self.topLeftAnchor = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cropper-top-left"]];
+     [self addSubview:self.topLeftAnchor];
+     }
+     self.topLeftAnchor.frame = upperLeft;
+     
+     if (!self.topRightAnchor) {
+     self.topRightAnchor = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cropper-top-right"]];
+     [self addSubview:self.topRightAnchor];
+     }
+     self.topRightAnchor.frame = upperRight;
+     
+     if (!self.bottomLeftAnchor) {
+     self.bottomLeftAnchor = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cropper-bottom-left"]];
+     [self addSubview:self.bottomLeftAnchor];
+     }
+     self.bottomLeftAnchor.frame = lowerLeft;
+     
+     if (!self.bottomRightAnchor) {
+     self.bottomRightAnchor = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cropper-bottom-right"]];
+     [self addSubview:self.bottomRightAnchor];
+     }
+     self.bottomRightAnchor.frame = lowerRight;*/
     
     CGGradientRelease(gradient), gradient = NULL;
     CGContextRestoreGState(context);
@@ -449,6 +450,10 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
     float check     = ([self resizableInset]+20) * 2;
     
     if (touchPoint.x < check+[self resizableInset] || touchPoint.x >= (self.bounds.size.width-check) || touchPoint.y < check+[self resizableInset] || touchPoint.y >= (self.bounds.size.height-check)) {
+        if (true) {
+            closestPoint.point = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2);
+            closestPoint.anchorPoint = SPUserResizableViewCenterAnchorPoint;
+        }
         return closestPoint.anchorPoint;
     } else {
         return (SPUserResizableViewAnchorPoint){0,0,0,0};
