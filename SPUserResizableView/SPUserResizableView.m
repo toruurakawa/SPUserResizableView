@@ -170,6 +170,7 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewCenterAnchorPoint = { 0
     [self addGestureRecognizer:self.panRecognizer];
     self.panRecognizer.delegate = self;
     
+    self.hasCustomAnchorPoint = NO;
 }
 
 - (id)initWithFrame:(CGRect)frame {
@@ -244,6 +245,11 @@ static SPUserResizableViewAnchorPoint SPUserResizableViewCenterAnchorPoint = { 0
 
 - (void)hideEditingHandles {
     [borderView setHidden:YES];
+}
+
+- (void)setCustomAnchorPoint:(SPUserResizableViewAnchorPoint)cp {
+    _customAnchorPoint = cp;
+    self.hasCustomAnchorPoint = YES;
 }
 
 #pragma mark - Resize
@@ -445,15 +451,19 @@ typedef struct CGPointSPUserResizableViewAnchorPointPair {
         }
     }
     
+    if (self.hasCustomAnchorPoint) {
+        closestPoint.point = CGPointMake(self.customAnchorPoint.adjustsX * self.bounds.size.width,
+                                         self.customAnchorPoint.adjustsY * self.bounds.size.height);
+        closestPoint.anchorPoint = (SPUserResizableViewAnchorPoint){self.customAnchorPoint.adjustsX,
+            self.customAnchorPoint.adjustsY,
+            -closestPoint.anchorPoint.adjustsW,
+            -closestPoint.anchorPoint.adjustsH};
+    }
     
     // make dragable only small portion of border.
     float check     = ([self resizableInset]+20) * 2;
     
     if (touchPoint.x < check+[self resizableInset] || touchPoint.x >= (self.bounds.size.width-check) || touchPoint.y < check+[self resizableInset] || touchPoint.y >= (self.bounds.size.height-check)) {
-        if (true) {
-            closestPoint.point = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2);
-            closestPoint.anchorPoint = SPUserResizableViewCenterAnchorPoint;
-        }
         return closestPoint.anchorPoint;
     } else {
         return (SPUserResizableViewAnchorPoint){0,0,0,0};

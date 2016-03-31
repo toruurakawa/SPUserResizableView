@@ -27,7 +27,8 @@
     self.imageResizableView.contentView = [[UIView alloc] initWithFrame:frame];
     self.imageResizableView.contentView.backgroundColor = [UIColor redColor];
     self.imageResizableView.delegate = self;
-    self.imageResizableView.disablePan = NO;
+    self.imageResizableView.disablePan = YES;
+    [self.imageResizableView setCustomAnchorPoint:(SPUserResizableViewAnchorPoint){0.5,0,1,1}];
     [self.imageResizableView showEditingHandles];
     
     self.fillLayer = [CAShapeLayer layer];

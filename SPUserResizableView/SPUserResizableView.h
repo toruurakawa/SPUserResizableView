@@ -117,6 +117,10 @@ typedef struct SPUserResizableViewAnchorPoint {
  */
 - (BOOL)isResizing;
 
+@property (nonatomic) BOOL hasCustomAnchorPoint;
+@property (nonatomic) SPUserResizableViewAnchorPoint customAnchorPoint;
+- (void) setCustomAnchorPoint:(SPUserResizableViewAnchorPoint)customAnchorPoint;
+
 @end
 
 @protocol SPUserResizableViewDelegate <NSObject>
